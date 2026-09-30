@@ -1428,6 +1428,17 @@ class BaseFork(ForkOpcodeInterface, metaclass=BaseForkMeta):
         """
         pass
 
+    @classmethod
+    @abstractmethod
+    def activation_minimum_nonces(cls) -> Mapping:
+        """
+        Return the nonce an install in `activation_code_installs` raises
+        its account's nonce to at least, keyed by address.
+
+        An install not listed here leaves the nonce unchanged.
+        """
+        pass
+
     # Engine API information abstract methods
     @classmethod
     @abstractmethod

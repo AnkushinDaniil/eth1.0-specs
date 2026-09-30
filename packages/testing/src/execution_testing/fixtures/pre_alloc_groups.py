@@ -580,7 +580,10 @@ class PreAllocGroupBuilders(EthereumTestRootModel):
                 ).with_installed_code(
                     fork.fork_at(
                         block_number=0, timestamp=0
-                    ).activation_code_installs()
+                    ).activation_code_installs(),
+                    fork.fork_at(
+                        block_number=0, timestamp=0
+                    ).activation_minimum_nonces(),
                 ),
             )
             self.root[pre_alloc_hash] = group

@@ -917,10 +917,10 @@ class BlockchainTest(BaseTest):
             # Code a fork installs at activation is part of genesis only when
             # that fork is already active there. A transition test gets it at
             # the fork block instead, in `generate_block_data`.
+            genesis_fork = self.fork.fork_at(block_number=0, timestamp=0)
             pre_alloc = pre_alloc.with_installed_code(
-                self.fork.fork_at(
-                    block_number=0, timestamp=0
-                ).activation_code_installs()
+                genesis_fork.activation_code_installs(),
+                genesis_fork.activation_minimum_nonces(),
             )
         if empty_accounts := pre_alloc.empty_accounts():
             raise Exception(f"Empty accounts in pre state: {empty_accounts}")
@@ -1027,7 +1027,7 @@ class BlockchainTest(BaseTest):
                 if isinstance(previous_alloc, LazyAlloc):
                     previous_alloc = previous_alloc.materialize()
                 previous_alloc = previous_alloc.with_installed_code(
-                    new_installs
+                    new_installs, fork.activation_minimum_nonces()
                 )
 
         transition_tool_output = t8n.evaluate(

@@ -171,6 +171,13 @@ def store_code(state: State, code: Bytes) -> Hash32:
     return code_hash
 
 
+def account_has_storage(state: State, address: Address) -> bool:
+    """
+    Check whether the account at `address` has any nonzero storage.
+    """
+    return address in state._storage_tries
+
+
 def set_account(
     state: State,
     address: Address,

@@ -1316,6 +1316,15 @@ class Frontier(BaseFork):
         return {}
 
     @classmethod
+    def activation_minimum_nonces(cls) -> Mapping:
+        """
+        Return the minimum nonces of the accounts installed at activation.
+
+        Frontier installs no code at activation.
+        """
+        return {}
+
+    @classmethod
     def build_default_block_header(
         cls, *, block_number: int = 0, timestamp: int = 0
     ) -> FixtureHeader:
@@ -1672,6 +1681,7 @@ class Amsterdam(
 
 
 class Bogota(
+    eips.EIP8272,
     eips.EIP8141,
     Amsterdam,
     deployed=False,

@@ -284,7 +284,11 @@ class Alloc(BaseAlloc):
         """Return iterator over the allocation items."""
         return self.root.items()
 
-    def with_installed_code(self, installs: Mapping) -> "Alloc":
+    def with_installed_code(
+        self,
+        installs: Mapping,
+        minimum_nonces: Mapping | None = None,
+    ) -> "Alloc":
         """
         Return a copy of this allocation with the runtime code in `installs`
         written at each address.
@@ -293,16 +297,26 @@ class Alloc(BaseAlloc):
         nonce, balance and storage, and one that does not is created with
         all three zero. This is how a fork installs code when it activates
         (EIP-8141's expiry verifier), as opposed to a predeploy that is part
-        of the genesis allocation.
+        of the genesis allocation. An install listed in `minimum_nonces`
+        also raises the account's nonce to at least that value (EIP-8272's
+        recent root contract).
         """
         if not installs:
             return self
+        nonces = {
+            Address(address): nonce
+            for address, nonce in (minimum_nonces or {}).items()
+        }
         root: Dict[Address, Account | None] = dict(self.root)
         for address, code in installs.items():
             address = Address(address)
-            root[address] = Account.merge(
-                root.get(address), Account(code=code)
-            )
+            account = Account.merge(root.get(address), Account(code=code))
+            if address in nonces:
+                account = Account.merge(
+                    account,
+                    Account(nonce=max(int(account.nonce), nonces[address])),
+                )
+            root[address] = account
         installed = Alloc(root)
         installed.migrate_state_commitment(self.state_commitment())
         return installed

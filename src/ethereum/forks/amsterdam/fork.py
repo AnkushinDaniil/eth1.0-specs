@@ -59,6 +59,7 @@ from .fork_types import (
     StateGas,
 )
 from .frame_processing import process_frame_transaction
+from .recent_roots import install_recent_root_contract
 from .requests import (
     BUILDER_DEPOSIT_REQUEST_TYPE,
     BUILDER_EXIT_REQUEST_TYPE,
@@ -198,9 +199,14 @@ def apply_fork(old: BlockChain) -> BlockChain:
     previously nonexistent account keeps a zero nonce and any balance
     the account held before the fork is preserved.
 
+    As required by [EIP-8272], the recent root contract is installed by
+    [`install_recent_root_contract`][irrc].
+
     [EIP-8141]: https://eips.ethereum.org/EIPS/eip-8141
+    [EIP-8272]: https://eips.ethereum.org/EIPS/eip-8272
     [ev]: ref:ethereum.forks.amsterdam.transactions.frame_transaction.EXPIRY_VERIFIER
     [evc]: ref:ethereum.forks.amsterdam.transactions.frame_transaction.EXPIRY_VERIFIER_CODE
+    [irrc]: ref:ethereum.forks.amsterdam.recent_roots.install_recent_root_contract
     """  # noqa: E501
     state = old.state
     existing_account = state.get_account_optional(EXPIRY_VERIFIER)
@@ -217,6 +223,7 @@ def apply_fork(old: BlockChain) -> BlockChain:
             code_hash=code_hash,
         ),
     )
+    install_recent_root_contract(state)
     return old
 
 

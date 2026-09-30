@@ -158,6 +158,11 @@ class BlockException(ExceptionBase):
     A system contract address contains no code at the end of fork activation
     block.
     """
+    SYSTEM_CONTRACT_ADDRESS_NOT_EMPTY = auto()
+    """
+    A fork activating in this block installs a system contract at an address
+    that already holds code or storage.
+    """
     SYSTEM_CONTRACT_CALL_FAILED = auto()
     """
     A system contract call at the end of block execution (from the system
