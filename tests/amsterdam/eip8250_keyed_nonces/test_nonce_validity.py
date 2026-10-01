@@ -28,6 +28,7 @@ from .helpers import (
     keyed_storage,
     nonce_manager,
     set_keyed_nonces,
+    typed_key,
 )
 from .spec import Spec, ref_spec_8250
 
@@ -49,6 +50,11 @@ pytestmark = pytest.mark.valid_from("Bogota")
         pytest.param([KEY_A, KEY_A], id="duplicate"),
         pytest.param([0, KEY_A], id="zero_key_with_other_key"),
         pytest.param([0, 0], id="zero_key_twice"),
+        pytest.param([typed_key(0x02, KEY_A)], id="reserved_nonce_type"),
+        pytest.param([2**256 - 1], id="highest_type_byte"),
+        pytest.param(
+            [KEY_A, typed_key(0x02, KEY_A)], id="reserved_type_after_valid"
+        ),
     ],
 )
 def test_invalid_nonce_key_set(

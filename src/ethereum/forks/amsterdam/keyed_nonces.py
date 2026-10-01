@@ -32,7 +32,9 @@ from .state_tracker import (
 from .transactions.frame_transaction import (
     LEGACY_NONCE_KEYS,
     NONCE_MANAGER,
+    NONCE_TYPE_BINARY,
     FrameTransaction,
+    nonce_type,
 )
 
 
@@ -68,10 +70,18 @@ def check_nonce_set(tx_state: TransactionState, tx: FrameTransaction) -> None:
     """
     Check that every nonce key the transaction selects currently holds
     the transaction's sequence.
+
+    A binary key is single use: it admits only sequence zero, and only
+    while unused.
     """
     for nonce_key in tx.nonce_keys:
         current = current_nonce_seq(tx_state, tx.sender, nonce_key)
-        if current > Uint(tx.nonce_seq):
+        if nonce_type(nonce_key) == NONCE_TYPE_BINARY:
+            if Uint(tx.nonce_seq) != Uint(0):
+                raise NonceMismatchError("nonce too high")
+            if current != Uint(0):
+                raise NonceMismatchError("nonce too low")
+        elif current > Uint(tx.nonce_seq):
             raise NonceMismatchError("nonce too low")
         elif current < Uint(tx.nonce_seq):
             raise NonceMismatchError("nonce too high")

@@ -36,10 +36,10 @@ from ..eip8141_frame_transactions.helpers import (
 )
 from ..eip8141_frame_transactions.spec import Spec as Spec8141
 from .helpers import (
-    FULL_WIDTH_KEY,
     KEY_A,
     KEY_B,
     NULLIFIER_KEY,
+    WIDEST_GENERAL_KEY,
     keyed_storage,
     nonce_manager,
     set_keyed_nonces,
@@ -68,7 +68,7 @@ MAX_KEY_SET = list(range(1, Spec.MAX_NONCE_KEYS + 1))
         pytest.param([KEY_A], id="one_key"),
         pytest.param([KEY_A, KEY_B], id="two_keys"),
         pytest.param([NULLIFIER_KEY], id="hash_derived_key"),
-        pytest.param([FULL_WIDTH_KEY], id="full_width_key"),
+        pytest.param([WIDEST_GENERAL_KEY], id="widest_general_key"),
         pytest.param(MAX_KEY_SET, id="max_keys"),
     ],
 )

@@ -133,6 +133,16 @@ The nonce key set selecting the sender's account nonce rather than a
 keyed nonce sequence held by the nonce manager.
 """
 
+NONCE_TYPE_BINARY: Final[Uint] = Uint(0x01)
+"""
+Nonce type of a single-use key, whose sequence is only ever zero or one.
+"""
+
+MAX_NONCE_TYPE: Final[Uint] = NONCE_TYPE_BINARY
+"""
+The highest nonce type a key may carry; higher types are reserved.
+"""
+
 
 @final
 class FrameMode(UintEnum, boundary=STRICT):
@@ -831,8 +841,10 @@ def validate_nonce_keys(nonce_keys: Tuple[U256, ...]) -> None:
     The set holds between one and [`MAX_NONCE_KEYS`][mnk] keys in
     strictly increasing order, so each set has one canonical encoding.
     The zero key aliases the sender's account nonce and may only appear
-    alone, as [`LEGACY_NONCE_KEYS`][lnk].
+    alone, as [`LEGACY_NONCE_KEYS`][lnk]. Every key carries a type no
+    higher than [`MAX_NONCE_TYPE`][mnt].
 
+    [mnt]: ref:ethereum.forks.amsterdam.transactions.frame_transaction.MAX_NONCE_TYPE
     [mnk]: ref:ethereum.forks.amsterdam.transactions.frame_transaction.MAX_NONCE_KEYS
     [lnk]: ref:ethereum.forks.amsterdam.transactions.frame_transaction.LEGACY_NONCE_KEYS
     """  # noqa: E501
@@ -844,6 +856,16 @@ def validate_nonce_keys(nonce_keys: Tuple[U256, ...]) -> None:
             raise InvalidFrameError("nonce keys not strictly increasing")
     if U256(0) in nonce_keys and nonce_keys != LEGACY_NONCE_KEYS:
         raise InvalidFrameError("zero nonce key alongside other keys")
+    for key in nonce_keys:
+        if nonce_type(key) > MAX_NONCE_TYPE:
+            raise InvalidFrameError("reserved nonce type")
+
+
+def nonce_type(nonce_key: U256) -> Uint:
+    """
+    Return the type of a nonce key, held in its most significant byte.
+    """
+    return Uint(nonce_key.to_be_bytes32()[0])
 
 
 def nonce_keys_hash(tx: FrameTransaction) -> Hash32:

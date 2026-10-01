@@ -66,7 +66,10 @@ NONCE_KEY_SETS = [
     pytest.param([FULL_WIDTH_KEY], 0, id="full_width_key"),
     pytest.param([KEY_A], 2**64 - 2, id="wide_seq"),
     pytest.param(
-        [2**256 - Spec.MAX_NONCE_KEYS + i for i in range(Spec.MAX_NONCE_KEYS)],
+        [
+            FULL_WIDTH_KEY - Spec.MAX_NONCE_KEYS + 1 + i
+            for i in range(Spec.MAX_NONCE_KEYS)
+        ],
         0,
         id="max_full_width_keys",
     ),

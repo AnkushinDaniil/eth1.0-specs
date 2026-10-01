@@ -18,8 +18,20 @@ A nonce key derived from a hash, as a privacy application would derive
 it from a nullifier, keeping its most significant byte zero.
 """
 
-FULL_WIDTH_KEY = 2**256 - 1
-"""The largest nonce key, whose encoding is the widest a key can take."""
+
+def typed_key(nonce_type: int, value: int) -> int:
+    """Return the nonce key of type `nonce_type` over a 31-byte `value`."""
+    return (nonce_type << 248) | value
+
+
+WIDEST_GENERAL_KEY = typed_key(Spec.NONCE_TYPE_GENERAL, 2**248 - 1)
+"""The largest nonce key whose sequence can advance past one."""
+
+FULL_WIDTH_KEY = typed_key(Spec.NONCE_TYPE_BINARY, 2**248 - 1)
+"""The largest valid nonce key, whose encoding is the widest a key takes."""
+
+BINARY_KEY = typed_key(Spec.NONCE_TYPE_BINARY, KEY_A)
+"""A single-use nonce key."""
 
 
 def nonce_slot(sender: Address, nonce_key: int) -> int:
